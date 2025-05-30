@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Raspberry Pi Deployment Script for AI Fitness Assistant
-# Bu script Raspberry Pi'da gerekli tüm bağımlılıkları kurar
+# Raspberry Pi Ubuntu Deployment Script for AI Fitness Assistant
+# Bu script Raspberry Pi Ubuntu'da gerekli tüm bağımlılıkları kurar
 
 set -e
 
-echo "🚀 AI Fitness Assistant Raspberry Pi Kurulumu Başlıyor..."
+echo "🚀 AI Fitness Assistant Raspberry Pi Ubuntu Kurulumu Başlıyor..."
 
 # Sistem güncellemesi
 echo "📦 Sistem paketleri güncelleniyor..."
@@ -32,17 +32,17 @@ sudo npm install -g pm2
 echo "📦 Nginx kurulumu..."
 sudo apt install -y nginx
 
-# Cloudflare tunnel kurulumu
+# Cloudflare tunnel kurulumu (ARM64 için)
 echo "📦 Cloudflare tunnel kurulumu..."
 wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64.deb
 sudo dpkg -i cloudflared-linux-arm64.deb
 rm cloudflared-linux-arm64.deb
 
-# Proje dizini oluşturma
+# Proje dizini oluşturma (growbox kullanıcısı için)
 echo "📁 Proje dizini hazırlanıyor..."
-PROJECT_DIR="/home/pi/ai-fitness-assistant"
+PROJECT_DIR="/home/growbox/fit-chatbot"
 sudo mkdir -p $PROJECT_DIR
-sudo chown pi:pi $PROJECT_DIR
+sudo chown growbox:growbox $PROJECT_DIR
 
 echo "✅ Temel kurulum tamamlandı!"
 echo "📝 Sonraki adımlar:"

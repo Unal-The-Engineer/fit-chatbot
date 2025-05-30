@@ -12,10 +12,10 @@ cloudflared tunnel login
 
 # Tunnel oluşturma
 echo "🚇 Yeni tunnel oluşturuluyor..."
-read -p "Tunnel adını girin (örnek: ai-fitness-pi): " TUNNEL_NAME
+read -p "Tunnel adını girin (örnek: ai-fitness-growbox): " TUNNEL_NAME
 
 if [ -z "$TUNNEL_NAME" ]; then
-    TUNNEL_NAME="ai-fitness-pi"
+    TUNNEL_NAME="ai-fitness-growbox"
 fi
 
 cloudflared tunnel create $TUNNEL_NAME
@@ -36,7 +36,7 @@ mkdir -p ~/.cloudflared
 
 cat > ~/.cloudflared/config.yml << EOF
 tunnel: $TUNNEL_ID
-credentials-file: /home/pi/.cloudflared/$TUNNEL_ID.json
+credentials-file: /home/growbox/.cloudflared/$TUNNEL_ID.json
 
 ingress:
   - hostname: $TUNNEL_NAME.trycloudflare.com
@@ -66,7 +66,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=pi
+User=growbox
 ExecStart=/usr/local/bin/cloudflared tunnel run
 Restart=on-failure
 RestartSec=5s
@@ -81,7 +81,7 @@ sudo systemctl enable cloudflared
 sudo systemctl start cloudflared
 
 # .env dosyasını güncelleme
-PROJECT_DIR="/home/pi/ai-fitness-assistant"
+PROJECT_DIR="/home/growbox/fit-chatbot"
 if [ -f "$PROJECT_DIR/.env" ]; then
     if [ -z "$DOMAIN" ]; then
         FRONTEND_URL="https://$TUNNEL_NAME.trycloudflare.com"

@@ -4,7 +4,7 @@
 
 set -e
 
-PROJECT_DIR="/home/pi/ai-fitness-assistant"
+PROJECT_DIR="/home/growbox/fit-chatbot"
 cd $PROJECT_DIR
 
 echo "🚀 AI Fitness Assistant başlatılıyor..."
@@ -36,6 +36,7 @@ echo "Backend logs: pm2 logs ai-fitness-backend"
 echo "Nginx logs: sudo tail -f /var/log/nginx/access.log"
 echo ""
 echo "🌐 Yerel erişim: http://localhost"
+echo "🌐 Yerel IP erişim: http://$(hostname -I | awk '{print $1}')"
 echo ""
 echo "🔧 Cloudflare tunnel kurulumu için:"
-echo "./cloudflare-setup.sh" 
+echo "./deploy/cloudflare-setup.sh" 

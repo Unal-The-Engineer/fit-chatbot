@@ -4,7 +4,7 @@
 
 set -e
 
-PROJECT_DIR="/home/pi/ai-fitness-assistant"
+PROJECT_DIR="/home/growbox/fit-chatbot"
 cd $PROJECT_DIR
 
 echo "🔄 AI Fitness Assistant güncelleniyor..."

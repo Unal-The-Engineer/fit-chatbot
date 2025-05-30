@@ -28,12 +28,12 @@ if [ -z "$OPENAI_KEY" ] || [ -z "$TAVILY_KEY" ]; then
 fi
 
 # Proje dizini
-PROJECT_DIR="/home/pi/ai-fitness-assistant"
+PROJECT_DIR="/home/growbox/fit-chatbot"
 
 echo ""
 echo "🔧 Adım 1/5: Sistem hazırlığı..."
 # Temel kurulum
-curl -fsSL https://raw.githubusercontent.com/your-repo/ai-fitness-assistant/main/deploy/install.sh | bash
+./deploy/install.sh
 
 echo ""
 echo "📁 Adım 2/5: Proje kurulumu..."

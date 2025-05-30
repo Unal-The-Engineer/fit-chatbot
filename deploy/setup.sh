@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # AI Fitness Assistant Proje Kurulum Scripti
-# Bu script projeyi Raspberry Pi'da kurar ve yapılandırır
+# Bu script projeyi Raspberry Pi Ubuntu'da kurar ve yapılandırır
 
 set -e
 
-PROJECT_DIR="/home/pi/ai-fitness-assistant"
+PROJECT_DIR="/home/growbox/fit-chatbot"
 cd $PROJECT_DIR
 
 echo "🔧 AI Fitness Assistant Proje Kurulumu..."
@@ -63,7 +63,7 @@ module.exports = {
       name: 'ai-fitness-backend',
       script: 'backend/venv/bin/python',
       args: 'backend/main.py',
-      cwd: '/home/pi/ai-fitness-assistant',
+      cwd: '/home/growbox/fit-chatbot',
       env: {
         NODE_ENV: 'production'
       },
@@ -92,7 +92,7 @@ server {
 
     # Frontend static files
     location / {
-        root /home/pi/ai-fitness-assistant/frontend/dist;
+        root /home/growbox/fit-chatbot/frontend/dist;
         try_files $uri $uri/ /index.html;
         
         # Cache static assets
@@ -133,7 +133,7 @@ echo "1. .env dosyasını düzenleyin ve API anahtarlarınızı ekleyin:"
 echo "   nano .env"
 echo ""
 echo "2. Uygulamayı başlatmak için:"
-echo "   ./start.sh"
+echo "   ./deploy/start.sh"
 echo ""
 echo "3. Cloudflare tunnel kurulumu için:"
-echo "   ./cloudflare-setup.sh" 
+echo "   ./deploy/cloudflare-setup.sh" 
