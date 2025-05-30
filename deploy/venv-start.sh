@@ -47,7 +47,7 @@ npm run build
 cd ..
 
 # Backend'i başlat (arka planda)
-echo "🚀 Backend başlatılıyor..."
+echo "🚀 Backend başlatılıyor (Port: 8001)..."
 cd backend
 python main.py &
 BACKEND_PID=$!
@@ -67,7 +67,7 @@ cd ..
 # Health check
 echo "🔍 Health check yapılıyor..."
 for i in {1..30}; do
-    if curl -f http://localhost:8000/health > /dev/null 2>&1; then
+    if curl -f http://localhost:8001/health > /dev/null 2>&1; then
         echo "✅ Backend başarıyla başlatıldı!"
         break
     fi
@@ -103,8 +103,8 @@ echo "✅ Uygulama başarıyla başlatıldı!"
 echo ""
 echo "🌐 Erişim adresleri:"
 echo "Frontend: http://localhost:3000"
-echo "Backend API: http://localhost:8000"
-echo "Backend Docs: http://localhost:8000/docs"
+echo "Backend API: http://localhost:8001"
+echo "Backend Docs: http://localhost:8001/docs"
 echo "Yerel IP: http://$(hostname -I | awk '{print $1}'):3000"
 
 echo ""

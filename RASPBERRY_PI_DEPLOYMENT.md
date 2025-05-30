@@ -90,8 +90,12 @@ OPENAI_API_KEY=sk-your-openai-api-key-here
 # Tavily API Key  
 TAVILY_API_KEY=tvly-your-tavily-api-key-here
 
-# Backend URL
-VITE_API_URL=http://localhost:8000
+# Backend Settings
+HOST=0.0.0.0
+PORT=8001
+
+# Frontend API URL
+VITE_API_BASE_URL=http://localhost:8001
 
 # Debug mode
 DEBUG=true
@@ -115,8 +119,8 @@ sudo apt install -y python3.11 python3.11-venv python3.11-dev
 
 ### Sanal Ortam
 - **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs
+- **Backend API**: http://localhost:8001
+- **API Docs**: http://localhost:8001/docs
 
 ### Docker
 - **Uygulama**: http://localhost
@@ -160,7 +164,7 @@ sudo apt install -y python3.11 python3.11-venv python3.11-dev
    ```bash
    ./deploy/venv-stop.sh
    # Veya manuel olarak:
-   sudo lsof -ti:8000 | xargs kill -9
+   sudo lsof -ti:8001 | xargs kill -9
    sudo lsof -ti:3000 | xargs kill -9
    ```
 
@@ -208,7 +212,7 @@ sudo ufw allow 22    # SSH
 sudo ufw allow 80    # HTTP
 sudo ufw allow 443   # HTTPS
 sudo ufw allow 3000  # Frontend (sadece sanal ortam için)
-sudo ufw allow 8000  # Backend (sadece sanal ortam için)
+sudo ufw allow 8001  # Backend (sadece sanal ortam için)
 ```
 
 ### SSL Sertifikası (Production)

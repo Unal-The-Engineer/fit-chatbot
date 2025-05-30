@@ -29,12 +29,12 @@ if [ -f ".frontend.pid" ]; then
 fi
 
 # Alternatif olarak port'larda çalışan process'leri durdur
-echo "🔍 Port 8000 ve 3000'de çalışan process'ler kontrol ediliyor..."
+echo "🔍 Port 8001 ve 3000'de çalışan process'ler kontrol ediliyor..."
 
-# Port 8000 (Backend)
-BACKEND_PROC=$(lsof -ti:8000 2>/dev/null || true)
+# Port 8001 (Backend)
+BACKEND_PROC=$(lsof -ti:8001 2>/dev/null || true)
 if [ ! -z "$BACKEND_PROC" ]; then
-    echo "🔴 Port 8000'de çalışan process durduruluyor..."
+    echo "🔴 Port 8001'de çalışan process durduruluyor..."
     kill $BACKEND_PROC 2>/dev/null || true
 fi
 

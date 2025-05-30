@@ -33,7 +33,7 @@ fi
 
 echo ""
 echo "🔍 Port durumları:"
-echo "Port 8000 (Backend): $(lsof -ti:8000 2>/dev/null && echo 'Kullanımda' || echo 'Boş')"
+echo "Port 8001 (Backend): $(lsof -ti:8001 2>/dev/null && echo 'Kullanımda' || echo 'Boş')"
 echo "Port 3000 (Frontend): $(lsof -ti:3000 2>/dev/null && echo 'Kullanımda' || echo 'Boş')"
 
 echo ""
@@ -45,7 +45,7 @@ echo ""
 echo "🌐 Erişim testi:"
 echo "==============="
 echo "Backend health check:"
-curl -s http://localhost:8000/health 2>/dev/null && echo " ✅" || echo " ❌"
+curl -s http://localhost:8001/health 2>/dev/null && echo " ✅" || echo " ❌"
 
 echo "Frontend erişim:"
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 2>/dev/null && echo " ✅" || echo " ❌"

@@ -120,8 +120,12 @@ OPENAI_API_KEY=your_openai_api_key_here
 # Tavily API Key  
 TAVILY_API_KEY=your_tavily_api_key_here
 
-# Backend URL (production)
-VITE_API_URL=http://localhost:8000
+# Backend Settings
+HOST=0.0.0.0
+PORT=8001
+
+# Frontend API URL
+VITE_API_BASE_URL=http://localhost:8001
 
 # Debug mode
 DEBUG=true
