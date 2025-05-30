@@ -1,169 +1,260 @@
-# 🍓 AI Fitness Assistant - Raspberry Pi Deployment
+# Raspberry Pi Deployment Guide
 
-Bu proje, AI destekli fitness asistanınızı Raspberry Pi'da çalıştırmanız ve Cloudflare tunnel ile internete açmanız için hazırlanmıştır.
+Bu rehber AI Fitness Assistant uygulamasını Raspberry Pi Ubuntu üzerinde deploy etmek için hazırlanmıştır.
 
-## 🚀 Hızlı Başlangıç
+## Sistem Gereksinimleri
 
-### Tek Komutla Kurulum
+- Raspberry Pi 4 (4GB+ RAM öneriliyor)
+- Ubuntu 20.04+ veya Raspberry Pi OS
+- İnternet bağlantısı
+- Sudo yetkisi
+
+## Kurulum Seçenekleri
+
+### 1. Sanal Ortam ile Kurulum (Önerilen - Test için)
+
+#### Hızlı Kurulum
 ```bash
-curl -fsSL https://raw.githubusercontent.com/your-repo/ai-fitness-assistant/main/deploy/quick-start.sh | bash
+# Tek komutla kurulum
+curl -sSL https://raw.githubusercontent.com/Unal-The-Engineer/fit-chatbot/main/deploy/quick-venv-setup.sh | bash
 ```
 
-### Manuel Kurulum
+#### Manuel Kurulum
 ```bash
-# 1. Projeyi klonlayın
-git clone https://github.com/your-repo/ai-fitness-assistant.git
-cd ai-fitness-assistant
+# 1. Repository'yi klonla
+git clone https://github.com/Unal-The-Engineer/fit-chatbot.git
+cd fit-chatbot
 
-# 2. Temel kurulum
-./deploy/install.sh
+# 2. Sanal ortam kurulumu
+./deploy/venv-setup.sh
 
-# 3. Proje kurulumu
-./deploy/setup.sh
-
-# 4. API anahtarlarını yapılandırın
+# 3. API anahtarlarını ayarla
 nano .env
 
-# 5. Uygulamayı başlatın
-./deploy/start.sh
+# 4. Uygulamayı başlat
+./deploy/venv-start.sh
+```
 
-# 6. Cloudflare tunnel kurun
+#### Sanal Ortam Yönetimi
+```bash
+# Uygulamayı başlat
+./deploy/venv-start.sh
+
+# Uygulamayı durdur
+./deploy/venv-stop.sh
+
+# Uygulamayı yeniden başlat
+./deploy/venv-restart.sh
+
+# Logları görüntüle
+./deploy/venv-logs.sh
+```
+
+### 2. Docker ile Kurulum (Production için)
+
+#### Hızlı Docker Kurulumu
+```bash
+# Tek komutla kurulum
+curl -sSL https://raw.githubusercontent.com/Unal-The-Engineer/fit-chatbot/main/deploy/quick-start.sh | bash
+```
+
+#### Manuel Docker Kurulumu
+```bash
+# 1. Repository'yi klonla
+git clone https://github.com/Unal-The-Engineer/fit-chatbot.git
+cd fit-chatbot
+
+# 2. Docker kurulumu
+./deploy/docker-setup.sh
+
+# 3. API anahtarlarını ayarla
+nano .env
+
+# 4. Docker ile başlat
+./deploy/docker-start.sh
+```
+
+## API Anahtarları Ayarlama
+
+`.env` dosyasını düzenleyin:
+
+```bash
+nano .env
+```
+
+Gerekli anahtarları ekleyin:
+```env
+# OpenAI API Key
+OPENAI_API_KEY=sk-your-openai-api-key-here
+
+# Tavily API Key  
+TAVILY_API_KEY=tvly-your-tavily-api-key-here
+
+# Backend URL
+VITE_API_URL=http://localhost:8000
+
+# Debug mode
+DEBUG=true
+```
+
+## Python Sürüm Uyumluluğu
+
+### Python 3.13 Sorunu
+Eğer Python 3.13 kullanıyorsanız, pydantic-core uyumluluk sorunu yaşayabilirsiniz. Script otomatik olarak Python 3.11 kuracaktır.
+
+### Manuel Python 3.11 Kurulumu
+```bash
+sudo apt update
+sudo apt install -y software-properties-common
+sudo add-apt-repository ppa:deadsnakes/ppa -y
+sudo apt update
+sudo apt install -y python3.11 python3.11-venv python3.11-dev
+```
+
+## Erişim Adresleri
+
+### Sanal Ortam
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
+
+### Docker
+- **Uygulama**: http://localhost
+- **Backend API**: http://localhost/api
+- **API Docs**: http://localhost/api/docs
+
+## Cloudflare Tunnel (İsteğe Bağlı)
+
+İnternet üzerinden erişim için:
+
+### Sanal Ortam için
+```bash
+# Cloudflare tunnel kurulumu
 ./deploy/cloudflare-setup.sh
 ```
 
-## 📋 Gereksinimler
-
-- **Raspberry Pi 4** (2GB+ RAM)
-- **Raspberry Pi OS** (64-bit)
-- **OpenAI API Key**
-- **Tavily API Key**
-- **Cloudflare Hesabı**
-
-## 🛠️ Deployment Scriptleri
-
-| Script | Açıklama |
-|--------|----------|
-| `install.sh` | Sistem bağımlılıklarını kurar |
-| `setup.sh` | Projeyi kurar ve yapılandırır |
-| `start.sh` | Uygulamayı başlatır |
-| `stop.sh` | Uygulamayı durdurur |
-| `update.sh` | Uygulamayı günceller |
-| `cloudflare-setup.sh` | Cloudflare tunnel kurar |
-| `quick-start.sh` | Tek komutla tam kurulum |
-
-## 🌐 Erişim
-
-- **Yerel**: `http://raspberry-pi-ip`
-- **İnternet**: `https://your-tunnel.trycloudflare.com`
-
-## 📊 Yönetim
-
-### Durum Kontrolü
+### Docker için
 ```bash
-pm2 status                    # Backend durumu
-sudo systemctl status nginx  # Web server durumu
-sudo systemctl status cloudflared  # Tunnel durumu
+# Cloudflare tunnel kurulumu
+./deploy/docker-cloudflare.sh
 ```
 
-### Loglar
+## Sorun Giderme
+
+### Sanal Ortam Sorunları
+
+1. **Python sürüm sorunu**:
+   ```bash
+   python3 --version
+   # Eğer 3.13 ise, script otomatik olarak 3.11 kuracak
+   ```
+
+2. **Paket kurulum hatası**:
+   ```bash
+   source venv/bin/activate
+   pip install --upgrade pip
+   pip install -r requirements-py311.txt
+   ```
+
+3. **Port kullanımda hatası**:
+   ```bash
+   ./deploy/venv-stop.sh
+   # Veya manuel olarak:
+   sudo lsof -ti:8000 | xargs kill -9
+   sudo lsof -ti:3000 | xargs kill -9
+   ```
+
+### Docker Sorunları
+
+1. **Docker izin hatası**:
+   ```bash
+   sudo usermod -aG docker $USER
+   # Sonra logout/login yapın
+   ```
+
+2. **Container başlatma hatası**:
+   ```bash
+   docker-compose logs
+   ```
+
+3. **Port çakışması**:
+   ```bash
+   docker-compose down
+   sudo lsof -ti:80 | xargs kill -9
+   ```
+
+## Performans Optimizasyonu
+
+### Raspberry Pi 4 için
 ```bash
-pm2 logs ai-fitness-backend   # Backend logları
-sudo tail -f /var/log/nginx/access.log  # Web server logları
-sudo journalctl -u cloudflared -f  # Tunnel logları
+# GPU memory split
+sudo raspi-config
+# Advanced Options > Memory Split > 128
+
+# Swap artırma
+sudo dphys-swapfile swapoff
+sudo nano /etc/dphys-swapfile
+# CONF_SWAPSIZE=2048
+sudo dphys-swapfile setup
+sudo dphys-swapfile swapon
 ```
 
-### Yeniden Başlatma
+## Güvenlik
+
+### Firewall Ayarları
 ```bash
-pm2 restart ai-fitness-backend  # Backend'i yeniden başlat
-sudo systemctl restart nginx    # Nginx'i yeniden başlat
-sudo systemctl restart cloudflared  # Tunnel'ı yeniden başlat
+sudo ufw enable
+sudo ufw allow 22    # SSH
+sudo ufw allow 80    # HTTP
+sudo ufw allow 443   # HTTPS
+sudo ufw allow 3000  # Frontend (sadece sanal ortam için)
+sudo ufw allow 8000  # Backend (sadece sanal ortam için)
 ```
 
-## 🔧 Sorun Giderme
+### SSL Sertifikası (Production)
+Cloudflare tunnel kullanıyorsanız SSL otomatik olarak sağlanır.
 
-### Backend Çalışmıyor
+## Monitoring
+
+### Sistem Kaynakları
 ```bash
-# Logları kontrol edin
-pm2 logs ai-fitness-backend
+# Sanal ortam için
+./deploy/venv-logs.sh
 
-# Manuel başlatma
-cd backend
-source venv/bin/activate
-python main.py
+# Docker için
+docker stats
 ```
 
-### Frontend Görünmüyor
+### Log Takibi
 ```bash
-# Nginx durumunu kontrol edin
-sudo systemctl status nginx
-sudo nginx -t
+# Sanal ortam
+tail -f /var/log/syslog
 
-# Build'i kontrol edin
-ls -la frontend/dist/
+# Docker
+docker-compose logs -f
 ```
 
-### Cloudflare Tunnel Sorunları
+## Güncelleme
+
+### Sanal Ortam
 ```bash
-# Tunnel durumunu kontrol edin
-sudo systemctl status cloudflared
-cloudflared tunnel list
+cd /home/growbox/fit-chatbot
+git pull origin main
+./deploy/venv-restart.sh
 ```
 
-## 📁 Proje Yapısı
-
-```
-ai-fitness-assistant/
-├── backend/                 # FastAPI backend
-│   ├── main.py             # Ana uygulama
-│   ├── config.py           # Konfigürasyon
-│   └── chatbot_service.py  # AI servis
-├── frontend/               # React frontend
-│   ├── src/                # Kaynak kodlar
-│   └── dist/               # Build çıktısı
-├── deploy/                 # Deployment scriptleri
-│   ├── install.sh          # Sistem kurulumu
-│   ├── setup.sh            # Proje kurulumu
-│   ├── start.sh            # Başlatma
-│   ├── stop.sh             # Durdurma
-│   ├── update.sh           # Güncelleme
-│   ├── cloudflare-setup.sh # Tunnel kurulumu
-│   └── quick-start.sh      # Hızlı kurulum
-├── .env                    # Environment değişkenleri
-└── requirements.txt        # Python bağımlılıkları
+### Docker
+```bash
+cd /home/growbox/fit-chatbot
+git pull origin main
+docker-compose down
+docker-compose build
+./deploy/docker-start.sh
 ```
 
-## 🔒 Güvenlik
+## Destek
 
-- Firewall aktif (UFW)
-- SSH key-based authentication önerilir
-- API anahtarları güvenli şekilde saklanır
-- HTTPS otomatik (Cloudflare tunnel)
-
-## 📱 Özellikler
-
-- **AI Fitness Asistanı**: OpenAI GPT ile kişiselleştirilmiş tavsiyeler
-- **Web Search**: Tavily API ile güncel bilgi arama
-- **Çok Dilli**: Türkçe ve İngilizce destek
-- **Responsive**: Mobil ve desktop uyumlu
-- **Real-time**: Canlı sohbet deneyimi
-
-## 🆘 Destek
-
-Detaylı rehber için: [`deploy/DEPLOYMENT_GUIDE.md`](deploy/DEPLOYMENT_GUIDE.md)
-
-Sorun yaşadığınızda:
+Sorun yaşarsanız:
 1. Logları kontrol edin
-2. Sistem kaynaklarını kontrol edin
-3. API anahtarlarını doğrulayın
-4. İnternet bağlantısını test edin
-
-## 📝 Notlar
-
-- Raspberry Pi'nın güç kaynağı yeterli olmalı (3A+)
-- SD kart hızı önemli (Class 10+)
-- Düzenli yedekleme yapın
-- Sistem güncellemelerini takip edin
-
----
-
-**🎯 Hedef**: Raspberry Pi'nızda profesyonel AI fitness asistanı çalıştırın! 
+2. GitHub Issues'da sorun bildirin
+3. Sistem kaynaklarını kontrol edin (RAM, disk) 
