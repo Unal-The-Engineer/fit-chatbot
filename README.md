@@ -1,6 +1,6 @@
 # 🤖 AI Fitness Assistant
 
-AI destekli kişiselleştirilmiş fitness ve beslenme asistanı. OpenAI GPT ve web search teknolojileri ile güçlendirilmiş, Raspberry Pi'da çalışabilen modern web uygulaması.
+AI destekli kişiselleştirilmiş fitness ve beslenme asistanı. OpenAI GPT ve web search teknolojileri ile güçlendirilmiş, Azure Static Web Apps'te çalışan modern web uygulaması.
 
 ## 🌟 Özellikler
 
@@ -9,15 +9,15 @@ AI destekli kişiselleştirilmiş fitness ve beslenme asistanı. OpenAI GPT ve w
 - **🌍 Çok Dilli**: Türkçe ve İngilizce destek
 - **📱 Responsive**: Mobil ve desktop uyumlu modern arayüz
 - **💬 Real-time Chat**: Canlı sohbet deneyimi
-- **🍓 Raspberry Pi Ready**: Raspberry Pi'da çalışmaya optimize edilmiş
+- **☁️ Azure Ready**: Azure Static Web Apps'te çalışmaya optimize edilmiş
 
 ## 🏗️ Teknoloji Stack
 
 ### Backend
 - **FastAPI** - Modern Python web framework
+- **Azure Functions** - Serverless backend hosting
 - **OpenAI API** - GPT-4 ile AI sohbet
 - **Tavily API** - Web search ve güncel bilgi
-- **Uvicorn** - ASGI server
 
 ### Frontend
 - **React 18** - Modern UI framework
@@ -27,36 +27,68 @@ AI destekli kişiselleştirilmiş fitness ve beslenme asistanı. OpenAI GPT ve w
 - **Lucide React** - Modern icon library
 
 ### Deployment
-- **Nginx** - Web server ve reverse proxy
-- **PM2** - Process manager
-- **Cloudflare Tunnel** - Secure internet access
-- **Systemd** - Service management
+- **Azure Static Web Apps** - Modern cloud hosting
+- **GitHub Actions** - CI/CD pipeline
+- **Azure Functions** - Serverless API
 
 ## 🚀 Hızlı Başlangıç
 
-### Raspberry Pi'da Deployment
+### Azure Static Web Apps Deployment
 
 ```bash
 # Repository'yi klonlayın
-git clone https://github.com/Unal-The-Engineer/fit-chatbot.git
-cd fit-chatbot
+git clone https://github.com/YOUR_USERNAME/ai-fitness-assistant.git
+cd ai-fitness-assistant
 
-# Tek komutla kurulum
-./deploy/quick-start.sh
+# Azure CLI ile deployment
+./deploy-to-azure.sh
 ```
+
+**Veya Manuel Deployment:**
+
+1. **Azure CLI kurulumu ve giriş:**
+   ```bash
+   # Azure CLI kur
+   brew install azure-cli  # macOS
+   # veya
+   winget install Microsoft.AzureCLI  # Windows
+   
+   # Azure'a giriş yap
+   az login
+   
+   # Static Web Apps extension kur
+   az extension add --name staticwebapp
+   ```
+
+2. **Azure Static Web App oluştur:**
+   ```bash
+   az staticwebapp create \
+     --name "fitchat-assistant" \
+     --resource-group "rg-fitchat-assistant" \
+     --source "https://github.com/YOUR_USERNAME/ai-fitness-assistant" \
+     --location "West Europe" \
+     --branch "main" \
+     --app-location "frontend/dist" \
+     --api-location "api"
+   ```
+
+3. **GitHub Secrets ekle:**
+   - `AZURE_STATIC_WEB_APPS_API_TOKEN`
+   - `OPENAI_API_KEY`
+   - `TAVILY_API_KEY`
 
 ### Yerel Development
 
 ```bash
 # Repository'yi klonlayın
-git clone https://github.com/Unal-The-Engineer/fit-chatbot.git
-cd fit-chatbot
+git clone https://github.com/YOUR_USERNAME/ai-fitness-assistant.git
+cd ai-fitness-assistant
 
-# Backend kurulumu
+# Backend kurulumu (yerel test için)
 cd backend
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r ../requirements.txt
+pip install -r ../api/requirements.txt
 
 # .env dosyası oluşturun
 cp .env.example .env
@@ -77,28 +109,31 @@ npm run dev
 - **OpenAI API Key** - [OpenAI Platform](https://platform.openai.com/api-keys)
 - **Tavily API Key** - [Tavily](https://tavily.com/)
 
-### Raspberry Pi Deployment
-- **Raspberry Pi 4** (2GB+ RAM önerilir)
-- **Raspberry Pi OS** (64-bit)
-- **Cloudflare Hesabı** - [Cloudflare](https://cloudflare.com/)
+### Azure Deployment
+- **Azure Hesabı** - [Azure Portal](https://portal.azure.com/)
+- **GitHub Hesabı** - [GitHub](https://github.com/)
 
-## 🛠️ Deployment Scriptleri
+## 🛠️ Deployment Dosyaları
 
-| Script | Açıklama |
+| Dosya | Açıklama |
 |--------|----------|
-| `deploy/install.sh` | Sistem bağımlılıklarını kurar |
-| `deploy/setup.sh` | Projeyi kurar ve yapılandırır |
-| `deploy/start.sh` | Uygulamayı başlatır |
-| `deploy/stop.sh` | Uygulamayı durdurur |
-| `deploy/update.sh` | Uygulamayı günceller |
-| `deploy/cloudflare-setup.sh` | Cloudflare tunnel kurar |
-| `deploy/quick-start.sh` | Tek komutla tam kurulum |
+| `deploy-to-azure.sh` | Azure'a otomatik deployment |
+| `azure-deployment-guide.md` | Detaylı Azure rehberi |
+| `.github/workflows/azure-static-web-apps.yml` | GitHub Actions workflow |
+| `staticwebapp.config.json` | Azure Static Web Apps config |
 
 ## 📁 Proje Yapısı
 
 ```
-fit-chatbot/
-├── backend/                 # FastAPI backend
+ai-fitness-assistant/
+├── api/                    # Azure Functions API
+│   ├── __init__.py         # Azure Functions entry point
+│   ├── function.json       # Function configuration
+│   ├── host.json           # Host configuration
+│   ├── requirements.txt    # Python dependencies
+│   ├── config.py           # Configuration
+│   └── chatbot_service.py  # AI service
+├── backend/                # FastAPI backend (yerel development)
 │   ├── main.py             # Ana uygulama
 │   ├── config.py           # Konfigürasyon
 │   └── chatbot_service.py  # AI servis
@@ -109,45 +144,42 @@ fit-chatbot/
 │   │   ├── types/          # TypeScript tipleri
 │   │   └── config/         # Konfigürasyon
 │   └── dist/               # Build çıktısı
-├── deploy/                 # Deployment scriptleri
-│   ├── install.sh          # Sistem kurulumu
-│   ├── setup.sh            # Proje kurulumu
-│   ├── start.sh            # Başlatma
-│   ├── stop.sh             # Durdurma
-│   ├── update.sh           # Güncelleme
-│   ├── cloudflare-setup.sh # Tunnel kurulumu
-│   ├── quick-start.sh      # Hızlı kurulum
-│   └── README.md           # Deployment rehberi
-├── .env                    # Environment değişkenleri
-├── requirements.txt        # Python bağımlılıkları
-└── RASPBERRY_PI_DEPLOYMENT.md # Raspberry Pi rehberi
+├── .github/workflows/      # GitHub Actions
+│   └── azure-static-web-apps.yml
+├── staticwebapp.config.json # Azure Static Web Apps config
+├── deploy-to-azure.sh      # Azure deployment script
+├── azure-deployment-guide.md # Azure rehberi
+└── .env                    # Environment değişkenleri
 ```
 
 ## 🌐 Erişim
 
+- **Azure Static Web Apps**: `https://your-app.azurestaticapps.net`
 - **Yerel Development**: `http://localhost:5173`
-- **Raspberry Pi Yerel**: `http://raspberry-pi-ip`
-- **İnternet (Cloudflare Tunnel)**: `https://your-tunnel.trycloudflare.com`
 
 ## 📊 Yönetim
 
-### Durum Kontrolü
+### Azure Static Web Apps
 ```bash
-pm2 status                    # Backend durumu
-sudo systemctl status nginx  # Web server durumu
-sudo systemctl status cloudflared  # Tunnel durumu
-```
+# App durumunu kontrol et
+az staticwebapp show --name "fitchat-assistant" --resource-group "rg-fitchat-assistant"
 
-### Loglar
-```bash
-pm2 logs ai-fitness-backend   # Backend logları
-sudo tail -f /var/log/nginx/access.log  # Web server logları
-sudo journalctl -u cloudflared -f  # Tunnel logları
+# Logs görüntüle
+az staticwebapp logs show --name "fitchat-assistant" --resource-group "rg-fitchat-assistant"
+
+# Environment variables listele
+az staticwebapp appsettings list --name "fitchat-assistant" --resource-group "rg-fitchat-assistant"
 ```
 
 ## 🔧 Konfigürasyon
 
-### Environment Variables (.env)
+### Environment Variables
+
+**Azure Static Web Apps:**
+- Azure Portal > Static Web Apps > Configuration bölümünde ayarlayın
+- GitHub Secrets'ta deployment için gerekli
+
+**Yerel Development (.env):**
 ```env
 # OpenAI API Key
 OPENAI_API_KEY=sk-your-openai-api-key
@@ -159,17 +191,14 @@ TAVILY_API_KEY=tvly-your-tavily-api-key
 HOST=0.0.0.0
 PORT=8000
 DEBUG=false
-
-# Frontend URL
-FRONTEND_URL=https://your-domain.trycloudflare.com
 ```
 
 ## 🔒 Güvenlik
 
-- **HTTPS**: Cloudflare tunnel ile otomatik SSL
+- **HTTPS**: Azure Static Web Apps ile otomatik SSL
 - **CORS**: Güvenli cross-origin ayarları
 - **API Keys**: Environment variables ile güvenli saklama
-- **Firewall**: UFW ile port güvenliği
+- **Azure Functions**: Serverless güvenlik
 
 ## 🤝 Katkıda Bulunma
 
@@ -185,20 +214,19 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICE
 
 ## 🆘 Destek
 
-- **Detaylı Rehber**: [Raspberry Pi Deployment](RASPBERRY_PI_DEPLOYMENT.md)
-- **Deployment Rehberi**: [deploy/README.md](deploy/README.md)
-- **Issues**: [GitHub Issues](https://github.com/Unal-The-Engineer/fit-chatbot/issues)
+- **Azure Rehberi**: [Azure Deployment Guide](azure-deployment-guide.md)
+- **Issues**: [GitHub Issues](https://github.com/YOUR_USERNAME/ai-fitness-assistant/issues)
 
 ## 📝 Changelog
+
+### v2.0.0
+- ☁️ Azure Static Web Apps desteği
+- 🚀 GitHub Actions CI/CD
+- 🔧 Azure Functions backend
+- 📦 Otomatik deployment script
 
 ### v1.0.0
 - ✨ İlk sürüm
 - 🤖 OpenAI GPT entegrasyonu
 - 🔍 Tavily web search
-- 🌍 Türkçe/İngilizce destek
-- 🍓 Raspberry Pi deployment
-- ☁️ Cloudflare tunnel desteği
-
----
-
-**🎯 Hedef**: Raspberry Pi'nızda profesyonel AI fitness asistanı çalıştırın! 
+- 🌍 Türkçe/İngilizce destek 

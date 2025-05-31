@@ -1,0 +1,11 @@
+azure-functions
+fastapi
+uvicorn[standard]
+pydantic==2.4.2
+pydantic-core==2.10.1
+openai
+tavily-python
+python-dotenv
+httpx
+typing-extensions
+annotated-types 
