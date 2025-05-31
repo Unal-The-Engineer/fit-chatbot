@@ -2,6 +2,17 @@ import azure.functions as func
 import json
 import logging
 import os
+import asyncio
+
+# Backend kodlarını import et
+try:
+    from config import settings
+    from chatbot_service import ChatbotService
+    chatbot_service = ChatbotService()
+    CHATBOT_AVAILABLE = True
+except Exception as e:
+    logging.error(f"Chatbot service import error: {e}")
+    CHATBOT_AVAILABLE = False
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
@@ -14,8 +25,9 @@ def health_check(req: func.HttpRequest) -> func.HttpResponse:
         json.dumps({
             "status": "healthy", 
             "service": "FitChat API", 
-            "message": "Azure Functions v2 working!",
-            "timestamp": "2025-05-31"
+            "chatbot_available": CHATBOT_AVAILABLE,
+            "openai_configured": bool(os.environ.get("OPENAI_API_KEY")),
+            "tavily_configured": bool(os.environ.get("TAVILY_API_KEY"))
         }),
         status_code=200,
         headers={
@@ -55,8 +67,8 @@ def test_endpoint(req: func.HttpRequest) -> func.HttpResponse:
     )
 
 @app.route(route="chat", methods=["POST", "OPTIONS"])
-def chat_endpoint(req: func.HttpRequest) -> func.HttpResponse:
-    """Simplified chat endpoint"""
+async def chat_endpoint(req: func.HttpRequest) -> func.HttpResponse:
+    """Main chat endpoint"""
     logging.info(f'Chat endpoint called with method: {req.method}')
     
     headers = {
@@ -79,17 +91,43 @@ def chat_endpoint(req: func.HttpRequest) -> func.HttpResponse:
                 headers=headers
             )
         
-        # Mock response for testing
         message = req_body.get("message", "")
         language = req_body.get("language", "tr")
+        user_data = req_body.get("user_data", {})
+        conversation_history = req_body.get("conversation_history", [])
         
-        if language == "tr":
-            mock_response = f"Merhaba! '{message}' mesajınızı aldım. Bu bir test yanıtıdır. Azure Functions v2 çalışıyor!"
+        if not message:
+            return func.HttpResponse(
+                json.dumps({"error": "Message is required"}),
+                status_code=400,
+                headers=headers
+            )
+        
+        # Gerçek chatbot kullan
+        if CHATBOT_AVAILABLE:
+            try:
+                response = await chatbot_service.process_message(
+                    message=message,
+                    user_data=user_data,
+                    language=language,
+                    conversation_history=conversation_history
+                )
+            except Exception as e:
+                logging.error(f"Chatbot service error: {e}")
+                # Fallback response
+                if language == "tr":
+                    response = f"Üzgünüm, şu anda teknik bir sorun yaşıyorum. Lütfen daha sonra tekrar deneyin. Hata: {str(e)}"
+                else:
+                    response = f"Sorry, I'm experiencing a technical issue. Please try again later. Error: {str(e)}"
         else:
-            mock_response = f"Hello! I received your message '{message}'. This is a test response. Azure Functions v2 is working!"
+            # Fallback response when chatbot is not available
+            if language == "tr":
+                response = "Chatbot servisi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin."
+            else:
+                response = "Chatbot service is currently unavailable. Please try again later."
         
         return func.HttpResponse(
-            json.dumps({"response": mock_response}),
+            json.dumps({"response": response}),
             status_code=200,
             headers=headers
         )
@@ -121,10 +159,23 @@ def initial_message_endpoint(req: func.HttpRequest) -> func.HttpResponse:
         req_body = req.get_json() or {}
         language = req_body.get("language", "tr")
         
-        if language == "tr":
-            initial_message = "Merhaba! Ben FitChat asistanınızım. Size fitness konularında yardımcı olabilirim. (Azure Functions v2 Test Modu)"
+        # Gerçek chatbot kullan
+        if CHATBOT_AVAILABLE:
+            try:
+                initial_message = chatbot_service.get_initial_message(language)
+            except Exception as e:
+                logging.error(f"Initial message service error: {e}")
+                # Fallback message
+                if language == "tr":
+                    initial_message = "Merhaba! Ben FitChat asistanınızım. Size fitness konularında yardımcı olabilirim."
+                else:
+                    initial_message = "Hello! I'm your FitChat assistant. I can help you with fitness topics."
         else:
-            initial_message = "Hello! I'm your FitChat assistant. I can help you with fitness topics. (Azure Functions v2 Test Mode)"
+            # Fallback message when chatbot is not available
+            if language == "tr":
+                initial_message = "Merhaba! Ben FitChat asistanınızım. Size fitness konularında yardımcı olabilirim."
+            else:
+                initial_message = "Hello! I'm your FitChat assistant. I can help you with fitness topics."
         
         return func.HttpResponse(
             json.dumps({"response": initial_message, "is_initial": True}),
