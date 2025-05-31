@@ -1,6 +1,7 @@
 import azure.functions as func
 import json
 import logging
+import asyncio
 from typing import Dict, Any, List, Optional
 import os
 
@@ -23,7 +24,7 @@ def health_check(req: func.HttpRequest) -> func.HttpResponse:
     )
 
 @app.route(route="chat", methods=["POST", "OPTIONS"])
-def chat_endpoint(req: func.HttpRequest) -> func.HttpResponse:
+async def chat_endpoint(req: func.HttpRequest) -> func.HttpResponse:
     """Main chat endpoint"""
     
     # CORS headers
@@ -63,7 +64,7 @@ def chat_endpoint(req: func.HttpRequest) -> func.HttpResponse:
             )
         
         # Process message
-        response = chatbot_service.process_message(
+        response = await chatbot_service.process_message(
             message=message,
             user_data=user_data,
             language=language,
