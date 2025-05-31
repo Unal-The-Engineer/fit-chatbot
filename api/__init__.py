@@ -15,17 +15,34 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
     """Azure Functions entry point"""
     logging.info('Python HTTP trigger function processed a request.')
     
-    # Get the route from the request
-    route = req.route_params.get('route', '')
+    # Get the route from the request URL
+    url_path = req.url.split('/')[-1] if req.url else ''
+    route = req.route_params.get('route', url_path)
     method = req.method
     
+    # Add CORS headers to all responses
+    cors_headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Content-Type": "application/json"
+    }
+    
     try:
+        # Handle OPTIONS requests for CORS
+        if method == 'OPTIONS':
+            return func.HttpResponse(
+                "",
+                status_code=200,
+                headers=cors_headers
+            )
+        
         # Health check endpoint
         if route == 'health' and method == 'GET':
             return func.HttpResponse(
                 json.dumps({"status": "healthy", "service": "FitChat API"}),
                 status_code=200,
-                headers={"Content-Type": "application/json"}
+                headers=cors_headers
             )
         
         # Initial chat message endpoint
@@ -42,14 +59,14 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
                         "is_initial": True
                     }),
                     status_code=200,
-                    headers={"Content-Type": "application/json"}
+                    headers=cors_headers
                 )
             except Exception as e:
                 logging.error(f"Error in initial chat: {str(e)}")
                 return func.HttpResponse(
                     json.dumps({"error": f"Error getting initial message: {str(e)}"}),
                     status_code=500,
-                    headers={"Content-Type": "application/json"}
+                    headers=cors_headers
                 )
         
         # Main chat endpoint
@@ -60,7 +77,7 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
                     return func.HttpResponse(
                         json.dumps({"error": "Request body is required"}),
                         status_code=400,
-                        headers={"Content-Type": "application/json"}
+                        headers=cors_headers
                     )
                 
                 message = req_body.get('message', '')
@@ -72,7 +89,7 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
                     return func.HttpResponse(
                         json.dumps({"error": "Message is required"}),
                         status_code=400,
-                        headers={"Content-Type": "application/json"}
+                        headers=cors_headers
                     )
                 
                 # Convert user_data to the expected format
@@ -94,7 +111,7 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
                 return func.HttpResponse(
                     json.dumps({"response": response}),
                     status_code=200,
-                    headers={"Content-Type": "application/json"}
+                    headers=cors_headers
                 )
                 
             except Exception as e:
@@ -102,27 +119,21 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
                 return func.HttpResponse(
                     json.dumps({"error": f"Chat processing error: {str(e)}"}),
                     status_code=500,
-                    headers={"Content-Type": "application/json"}
+                    headers=cors_headers
                 )
-        
-        # Handle OPTIONS requests for CORS
-        elif method == 'OPTIONS':
-            return func.HttpResponse(
-                "",
-                status_code=200,
-                headers={
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-                    "Access-Control-Allow-Headers": "Content-Type, Authorization"
-                }
-            )
         
         # Route not found
         else:
+            logging.info(f"Route not found: {route}, URL: {req.url}, Method: {method}")
             return func.HttpResponse(
-                json.dumps({"error": f"Route not found: {route}"}),
+                json.dumps({
+                    "error": f"Route not found: {route}",
+                    "available_routes": ["health", "chat", "chat/initial"],
+                    "method": method,
+                    "url": req.url
+                }),
                 status_code=404,
-                headers={"Content-Type": "application/json"}
+                headers=cors_headers
             )
             
     except Exception as e:
@@ -130,5 +141,5 @@ async def main(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(
             json.dumps({"error": f"Internal server error: {str(e)}"}),
             status_code=500,
-            headers={"Content-Type": "application/json"}
+            headers=cors_headers
         ) 
