@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot } from 'lucide-react';
+import { Send, Bot, Target, TrendingUp, TrendingDown, Minus, UtensilsCrossed } from 'lucide-react';
 import { useUserData } from '../context/UserDataContext';
 import { useLanguage } from '../context/LanguageContext';
 import ChatMessage from './chat/ChatMessage';
@@ -13,6 +13,8 @@ const ChatbotPanel: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [showQuickActions, setShowQuickActions] = useState(false);
+  const [showNutritionAction, setShowNutritionAction] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Initialize chat with welcome message
@@ -27,6 +29,8 @@ const ChatbotPanel: React.FC = () => {
     if (isInitialized) {
       setIsInitialized(false);
       setMessages([]);
+      setShowQuickActions(false);
+      setShowNutritionAction(false);
     }
   }, [language]);
 
@@ -56,6 +60,7 @@ const ChatbotPanel: React.FC = () => {
         };
         setMessages([initialMessage]);
         setIsInitialized(true);
+        setShowQuickActions(true);
       }
     } catch (error) {
       console.error('Failed to initialize chat:', error);
@@ -72,7 +77,43 @@ const ChatbotPanel: React.FC = () => {
       };
       setMessages([fallbackMessage]);
       setIsInitialized(true);
+      setShowQuickActions(true);
     }
+  };
+
+  const handleQuickAction = async (actionText: string) => {
+    setShowQuickActions(false);
+    
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: MessageType.USER,
+      text: actionText,
+      timestamp: new Date(),
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    await sendMessage(actionText);
+    
+    // İkinci mesajdan sonra beslenme programı butonunu göster
+    setShowNutritionAction(true);
+  };
+
+  const handleNutritionAction = async () => {
+    setShowNutritionAction(false);
+    
+    const nutritionText = language === 'tr' 
+      ? 'Beslenme programı oluşturmak istiyorum'
+      : 'I want to create a nutrition program';
+    
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: MessageType.USER,
+      text: nutritionText,
+      timestamp: new Date(),
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    await sendMessage(nutritionText);
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,7 +133,17 @@ const ChatbotPanel: React.FC = () => {
     };
     
     setMessages(prev => [...prev, userMessage]);
+    const messageText = inputValue;
     setInputValue('');
+    
+    // Quick actions'ları gizle
+    setShowQuickActions(false);
+    setShowNutritionAction(false);
+    
+    await sendMessage(messageText);
+  };
+
+  const sendMessage = async (messageText: string) => {
     setIsTyping(true);
     
     try {
@@ -108,7 +159,7 @@ const ChatbotPanel: React.FC = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          message: userMessage.text,
+          message: messageText,
           language: language,
           conversation_history: conversationHistory,
           user_data: {
@@ -151,6 +202,24 @@ const ChatbotPanel: React.FC = () => {
       setIsTyping(false);
     }
   };
+
+  const quickActions = [
+    {
+      text: language === 'tr' ? 'Kilo vermek istiyorum' : 'I want to lose weight',
+      icon: TrendingDown,
+      color: 'bg-red-500 hover:bg-red-600'
+    },
+    {
+      text: language === 'tr' ? 'Kilo almak istiyorum' : 'I want to gain weight',
+      icon: TrendingUp,
+      color: 'bg-green-500 hover:bg-green-600'
+    },
+    {
+      text: language === 'tr' ? 'Kilomu korumak istiyorum' : 'I want to maintain my weight',
+      icon: Minus,
+      color: 'bg-blue-500 hover:bg-blue-600'
+    }
+  ];
   
   return (
     <div className="w-full lg:w-1/2 bg-white rounded-xl shadow-sm p-6 transition-all duration-300 card-hover">
@@ -165,6 +234,44 @@ const ChatbotPanel: React.FC = () => {
             <ChatMessage message={message} />
           </div>
         ))}
+        
+        {/* Quick Action Buttons - Hedef Seçimi */}
+        {showQuickActions && (
+          <div className="message-animation">
+            <div className="flex flex-wrap gap-2 mt-4">
+              {quickActions.map((action, index) => {
+                const IconComponent = action.icon;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleQuickAction(action.text)}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-full text-white text-sm font-medium transition-all duration-200 transform hover:scale-105 ${action.color}`}
+                  >
+                    <IconComponent className="w-4 h-4" />
+                    <span>{action.text}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Nutrition Program Button */}
+        {showNutritionAction && (
+          <div className="message-animation">
+            <div className="flex justify-center mt-4">
+              <button
+                onClick={handleNutritionAction}
+                className="flex items-center space-x-2 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-full font-medium transition-all duration-200 transform hover:scale-105 shadow-lg"
+              >
+                <UtensilsCrossed className="w-5 h-5" />
+                <span>
+                  {language === 'tr' ? 'Beslenme Programı Oluştur' : 'Create Nutrition Program'}
+                </span>
+              </button>
+            </div>
+          </div>
+        )}
         
         {isTyping && (
           <div className="flex items-center space-x-2 text-gray-500 text-sm message-animation">
