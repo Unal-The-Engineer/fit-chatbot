@@ -6,8 +6,8 @@ from typing import Dict, Any, List, Optional
 import os
 
 # Backend kodlarını import et
-from .config import settings
-from .chatbot_service import ChatbotService
+from config import settings
+from chatbot_service import ChatbotService
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.ANONYMOUS)
 
