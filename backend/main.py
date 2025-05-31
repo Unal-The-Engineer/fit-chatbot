@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 import uvicorn
+import os
 
 from config import settings
 from chatbot_service import ChatbotService
@@ -13,10 +14,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
+# CORS middleware - Allow all origins for Azure Container Apps
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,7 +53,7 @@ class ChatResponse(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "FitChat API is running!"}
+    return {"message": "FitChat API is running!", "status": "healthy"}
 
 @app.get("/health")
 async def health_check():
@@ -98,9 +99,10 @@ async def get_initial_message(request: InitialMessageRequest):
         raise HTTPException(status_code=500, detail=f"Error getting initial message: {str(e)}")
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8000))
     uvicorn.run(
         "main:app",
-        host=settings.HOST,
-        port=settings.PORT,
-        reload=settings.DEBUG
+        host="0.0.0.0",
+        port=port,
+        reload=False
     ) 
